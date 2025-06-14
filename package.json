@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Business Analyst Assistant - AI-powered meeting transcript analyzer",
   "scripts": {
-    "dev": "netlify dev",
-    "build": "tsc"
+    "dev": "netlify dev"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
