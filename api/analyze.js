@@ -111,28 +111,29 @@ export default async function handler(req, res) {
     ${transcript}`;
 
     const geminiRequest = {
-      model: 'models/gemini-2p5-flash',
       system_instruction: {
-        parts: {
+        role: 'system',
+        parts: [{
           text: systemInstruction
-        }
-      },
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: "application/json",
-        thinkingConfig: {
-          thinkingBudget: 100
-        }
+        }]
       },
       contents: [{
         role: 'user',
         parts: [{ text: userPrompt }]
-      }]
+      }],
+      generationConfig: {
+        temperature: 0.3,
+        responseMimeType: "application/json",
+        thinkingConfig: {
+          thinkingBudget: 1024,
+          includeThoughts: false
+        }
+      }
     };
 
     // Call Gemini API
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2p5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
