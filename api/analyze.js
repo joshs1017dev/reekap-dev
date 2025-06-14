@@ -112,11 +112,17 @@ export default async function handler(req, res) {
 
     const geminiRequest = {
       model: 'models/gemini-2p5-flash',
-      system_instruction: systemInstruction,
-      generation_config: {
+      system_instruction: {
+        parts: {
+          text: systemInstruction
+        }
+      },
+      generationConfig: {
         temperature: 0.3,
-        thinking_budget: 100,
-        response_mime_type: "application/json"
+        responseMimeType: "application/json",
+        thinkingConfig: {
+          thinkingBudget: 100
+        }
       },
       contents: [{
         role: 'user',
