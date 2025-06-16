@@ -107,6 +107,9 @@ export default async function handler(req, res) {
       // Alternative Pro model name format
       'gemini-2p5-pro': {
         thinkingBudget: 2048
+      },
+      'gemini-2.0-pro-exp': {
+        thinkingBudget: 2048
       }
     };
 
@@ -172,10 +175,12 @@ export default async function handler(req, res) {
       generationConfig: {
         temperature: 0.3,
         responseMimeType: "application/json",
-        thinkingConfig: {
-          thinkingBudget: modelConfig.thinkingBudget,
-          includeThoughts: false
-        }
+        ...(model.includes('flash') ? {
+          thinkingConfig: {
+            thinkingBudget: modelConfig.thinkingBudget,
+            includeThoughts: false
+          }
+        } : {})
       }
     };
 
