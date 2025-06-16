@@ -103,6 +103,10 @@ export default async function handler(req, res) {
       },
       'gemini-2.5-pro-preview-06-05': {
         thinkingBudget: 2048
+      },
+      // Alternative Pro model name format
+      'gemini-2p5-pro': {
+        thinkingBudget: 2048
       }
     };
 
@@ -176,6 +180,7 @@ export default async function handler(req, res) {
     };
 
     // Call Gemini API
+    console.log(`Calling Gemini API with model: ${model}`);
     const geminiResponse = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
@@ -188,20 +193,39 @@ export default async function handler(req, res) {
     if (!geminiResponse.ok) {
       const error = await geminiResponse.text();
       console.error('Gemini API error:', error);
-      res.status(500).json({ error: 'Failed to analyze transcript' });
+      console.error('Status:', geminiResponse.status);
+      console.error('Model:', model);
+      res.status(500).json({ 
+        error: 'Failed to analyze transcript',
+        model: model,
+        status: geminiResponse.status,
+        details: error.substring(0, 500) // First 500 chars of error
+      });
       return;
     }
 
     const geminiData = await geminiResponse.json();
     
+    // Log the full response structure for debugging
+    console.log('Gemini response structure:', JSON.stringify(geminiData, null, 2));
+    
     // Extract the JSON response
     const analysisText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!analysisText) {
+      console.error('No text found in Gemini response');
+      console.error('Full response:', JSON.stringify(geminiData));
       throw new Error('No response from Gemini');
     }
 
     // Parse the JSON response
-    const analysis = JSON.parse(analysisText);
+    let analysis;
+    try {
+      analysis = JSON.parse(analysisText);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Raw response text:', analysisText);
+      throw new Error(`Failed to parse Gemini response: ${parseError.message}`);
+    }
     
     // Add meeting type to response
     analysis.meeting_type = meeting_type;
