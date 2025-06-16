@@ -175,12 +175,10 @@ export default async function handler(req, res) {
       generationConfig: {
         temperature: 0.3,
         responseMimeType: "application/json",
-        ...(model.includes('flash') ? {
-          thinkingConfig: {
-            thinkingBudget: modelConfig.thinkingBudget,
-            includeThoughts: false
-          }
-        } : {})
+        thinkingConfig: {
+          thinkingBudget: modelConfig.thinkingBudget,
+          includeThoughts: false
+        }
       }
     };
 
