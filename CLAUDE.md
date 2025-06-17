@@ -4,7 +4,7 @@
 - **SUPPORTED MODELS**: 
   - Gemini 2.5 Flash Preview: `gemini-2.5-flash-preview-05-20` (Default)
   - Gemini 2.5 Pro Preview: `gemini-2.5-pro-preview-06-05` (Enhanced analysis)
-- **REQUIRED CONFIG**: `thinkingConfig` with `thinkingBudget` parameter
+- **API CONFIG**: No special configuration needed - thinking is enabled by default
 - **API STRUCTURE**: Uses nested system_instruction format
 
 ## Core Requirements
@@ -41,11 +41,7 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model
   }],
   "generationConfig": {
     "temperature": 0.3,
-    "responseMimeType": "application/json",
-    "thinkingConfig": {
-      "thinkingBudget": 1024,  // Flash: 1024, Pro: 2048
-      "includeThoughts": false
-    }
+    "responseMimeType": "application/json"
   }
 }
 ```
@@ -56,7 +52,6 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model
 
 ## DO NOT
 - Use models other than the two supported Gemini models
-- Forget the thinkingConfig parameter
 - Add complex authentication
 - Store any data
 - Break existing functionality when adding features
@@ -76,7 +71,7 @@ Description: Web app that analyzes meeting transcriptions and generates structur
 - Test all changes manually (no test suite currently)
 - Follow existing patterns in the codebase
 - Prioritize simplicity and maintainability
-- Always use Gemini 2.5 Flash with thinking_budget parameter
+- Always use Gemini 2.5 Flash or Pro models (thinking is enabled by default)
 
 ## Build & Development Commands
 ```bash
@@ -159,7 +154,7 @@ git commit -m "[type]: [description]"  # Commit format
 
 ## Common Pitfalls to Avoid
 - Don't forget to update BOTH index.html files
-- Always include thinking_budget in Gemini requests
+- Gemini 2.5 models have thinking enabled by default (no config needed)
 - Keep prompts consistent across all backend files
 - Don't add complex features beyond BA needs
 - Remember there's no database - everything is stateless
