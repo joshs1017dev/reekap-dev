@@ -96,24 +96,6 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Model configuration
-    const MODEL_CONFIGS = {
-      'gemini-2.5-flash-preview-05-20': {
-        thinkingBudget: 1024
-      },
-      'gemini-2.5-pro-preview-06-05': {
-        thinkingBudget: 2048
-      },
-      // Alternative Pro model name format
-      'gemini-2p5-pro': {
-        thinkingBudget: 2048
-      },
-      'gemini-2.0-pro-exp': {
-        thinkingBudget: 2048
-      }
-    };
-
-    const modelConfig = MODEL_CONFIGS[model] || MODEL_CONFIGS['gemini-2.5-flash-preview-05-20'];
 
     // Build Gemini request
     const isTraining = meeting_type === 'training';
@@ -175,9 +157,6 @@ export default async function handler(req, res) {
       generationConfig: {
         temperature: 0.3,
         responseMimeType: "application/json"
-      },
-      thinkingConfig: {
-        thinkingBudget: modelConfig.thinkingBudget
       }
     };
 
