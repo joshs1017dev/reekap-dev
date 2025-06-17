@@ -4,7 +4,7 @@
 - **SUPPORTED MODELS**: 
   - Gemini 2.5 Flash Preview: `gemini-2.5-flash-preview-05-20` (Default)
   - Gemini 2.5 Pro Preview: `gemini-2.5-pro-preview-06-05` (Enhanced analysis)
-- **API CONFIG**: No special configuration needed - thinking is enabled by default
+- **API CONFIG**: No thinkingConfig needed - Flash uses Auto mode, Pro always thinks
 - **API STRUCTURE**: Uses nested system_instruction format
 
 ## Core Requirements
@@ -71,7 +71,7 @@ Description: Web app that analyzes meeting transcriptions and generates structur
 - Test all changes manually (no test suite currently)
 - Follow existing patterns in the codebase
 - Prioritize simplicity and maintainability
-- Always use Gemini 2.5 Flash or Pro models (thinking is enabled by default)
+- Always use Gemini 2.5 Flash (Auto thinking) or Pro (always-on thinking)
 
 ## Build & Development Commands
 ```bash
@@ -154,7 +154,7 @@ git commit -m "[type]: [description]"  # Commit format
 
 ## Common Pitfalls to Avoid
 - Don't forget to update BOTH index.html files
-- Gemini 2.5 models have thinking enabled by default (no config needed)
+- Flash: Auto-adjusts thinking based on complexity; Pro: Always thinks
 - Keep prompts consistent across all backend files
 - Don't add complex features beyond BA needs
 - Remember there's no database - everything is stateless
