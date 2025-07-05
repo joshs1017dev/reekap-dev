@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Analyst Assistant - Enhanced Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs-persist@1.x.x/dist/cdn.min.js" defer></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
     <style>
@@ -931,7 +929,7 @@
         window.MeetingHistoryComponent = MeetingHistoryComponent;
         window.TestGeneratorComponent = TestGeneratorComponent;
 
-        function baAssistant() {
+        window.baAssistant = function() {
             return {
                 ...createStore(),
                 
@@ -1142,9 +1140,9 @@ ${this.results.dependencies.map(item => '• ' + item).join('\n')}
                 }
             }
         }
-
-        // Make function available globally
-        window.baAssistant = baAssistant;
     </script>
+    
+    <!-- Alpine.js - Must load after component definitions -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>
