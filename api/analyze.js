@@ -1,3 +1,5 @@
+import { initDb, saveConversationResult } from './lib/db.js';
+
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -115,6 +117,7 @@ export default async function handler(req, res) {
       "resources_shared": ["Books, articles, templates, reference materials"],
       "skill_assessments": ["How competency will be measured or evaluated"],
       "prerequisites": ["What knowledge was assumed coming in"],
+      "important_dates": ["Array of significant dates mentioned with context (e.g., 'Feb 20: Assignment due', 'March 5-7: Workshop dates', 'Next Tuesday: Follow-up session')"],
       "follow_up_topics": ["What will be covered in future sessions"]
     }
     
@@ -131,6 +134,7 @@ export default async function handler(req, res) {
       "requirements": ["Array of business or functional requirements discussed"],
       "open_questions": ["Array of unresolved questions needing follow-up"],
       "dependencies": ["Array of dependencies mentioned"],
+      "important_dates": ["Array of significant dates mentioned with context (e.g., 'March 15: MVP launch target', 'Q2 2024: Budget review', 'Every Monday: Team sync')"],
       "next_steps": ["Array of planned next steps or activities"]
     }
     
@@ -210,6 +214,30 @@ export default async function handler(req, res) {
     
     // Add meeting type to response
     analysis.meeting_type = meeting_type;
+    
+    // Save to database if DATABASE_URL is configured
+    if (process.env.DATABASE_URL) {
+      try {
+        // Initialize database if needed
+        await initDb();
+        
+        // Add transcript length to the analysis
+        analysis.transcript_length = transcript.length;
+        
+        // Save the result to database
+        const dbResult = await saveConversationResult(analysis);
+        console.log('Saved to database with ID:', dbResult.id);
+        
+        // Add the database ID to the response
+        analysis.db_id = dbResult.id;
+        analysis.saved_at = dbResult.created_at;
+      } catch (dbError) {
+        console.error('Database save error:', dbError);
+        // Don't fail the request if database save fails
+        // Just add a warning to the response
+        analysis.db_save_warning = 'Result processed but not saved to database';
+      }
+    }
 
     res.status(200).json(analysis);
 
