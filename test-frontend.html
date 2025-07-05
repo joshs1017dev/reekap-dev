@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background-color: #d4edda; color: #155724; }
+        .fail { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">Frontend Tests</h1>
+    <div id="test-results"></div>
+
+    <script type="module">
+        const results = document.getElementById('test-results');
+        
+        function logTest(name, passed, error = null) {
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `<strong>${name}:</strong> ${passed ? 'PASSED' : 'FAILED'} ${error ? `- ${error}` : ''}`;
+            results.appendChild(div);
+        }
+
+        // Test 1: Check if modules can be imported
+        try {
+            const { createStore } = await import('./js/state/store.js');
+            logTest('Import store.js', true);
+            
+            // Test store creation
+            try {
+                const store = createStore();
+                logTest('Create store instance', true);
+                logTest('Store has required properties', 
+                    store.hasOwnProperty('authenticated') && 
+                    store.hasOwnProperty('passcode') &&
+                    store.hasOwnProperty('results')
+                );
+            } catch (e) {
+                logTest('Create store instance', false, e.message);
+            }
+        } catch (e) {
+            logTest('Import store.js', false, e.message);
+        }
+
+        // Test 2: Check component imports
+        try {
+            const { DocumentGeneratorComponent } = await import('./js/components/document-generator.js');
+            logTest('Import DocumentGeneratorComponent', true);
+        } catch (e) {
+            logTest('Import DocumentGeneratorComponent', false, e.message);
+        }
+
+        try {
+            const { MeetingHistoryComponent } = await import('./js/components/meeting-history.js');
+            logTest('Import MeetingHistoryComponent', true);
+            
+            // Test component creation
+            try {
+                const component = MeetingHistoryComponent();
+                logTest('Create MeetingHistoryComponent instance', true);
+                logTest('MeetingHistoryComponent has init method', typeof component.init === 'function');
+            } catch (e) {
+                logTest('Create MeetingHistoryComponent instance', false, e.message);
+            }
+        } catch (e) {
+            logTest('Import MeetingHistoryComponent', false, e.message);
+        }
+
+        try {
+            const { TestGeneratorComponent } = await import('./js/components/test-generator.js');
+            logTest('Import TestGeneratorComponent', true);
+        } catch (e) {
+            logTest('Import TestGeneratorComponent', false, e.message);
+        }
+
+        // Test 3: Check Alpine.js loading
+        setTimeout(() => {
+            logTest('Alpine.js available', typeof window.Alpine !== 'undefined');
+            
+            // Test 4: Check if baAssistant is defined
+            logTest('baAssistant function defined', typeof window.baAssistant === 'function');
+            
+            // Test 5: Try creating baAssistant instance
+            if (typeof window.baAssistant === 'function') {
+                try {
+                    const instance = window.baAssistant();
+                    logTest('Create baAssistant instance', true);
+                    logTest('baAssistant has init method', typeof instance.init === 'function');
+                    logTest('baAssistant has authenticate method', typeof instance.authenticate === 'function');
+                } catch (e) {
+                    logTest('Create baAssistant instance', false, e.message);
+                }
+            }
+        }, 1000);
+
+        // Test 6: Check API endpoint
+        try {
+            const response = await fetch('/api/results', {
+                method: 'GET',
+                headers: {
+                    'x-passcode': 'test'
+                }
+            });
+            logTest('API endpoint accessible', response.status !== 404);
+            logTest('API returns expected error', response.status === 401); // Should fail auth
+        } catch (e) {
+            logTest('API endpoint accessible', false, e.message);
+        }
+    </script>
+
+    <!-- Load Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

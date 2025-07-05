@@ -43,7 +43,7 @@ export const DocumentGeneratorComponent = () => ({
     
     // Generate document from current results
     async generateDocument() {
-        if (!this.$store.baAssistant.results) {
+        if (!this.$parent.results) {
             alert('Please analyze a meeting first');
             return;
         }
@@ -57,8 +57,8 @@ export const DocumentGeneratorComponent = () => ({
                 title: this.documentTitle,
                 version: this.documentVersion,
                 includeMetadata: this.includeMetadata,
-                meetingData: this.$store.baAssistant.results,
-                meetingType: this.$store.baAssistant.meetingType,
+                meetingData: this.$parent.results,
+                meetingType: this.$parent.meetingType,
                 generatedDate: new Date().toISOString()
             };
             
@@ -67,7 +67,7 @@ export const DocumentGeneratorComponent = () => ({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-passcode': this.$store.baAssistant.passcode
+                    'x-passcode': sessionStorage.getItem('ba_passcode')
                 },
                 body: JSON.stringify(docData)
             });
@@ -91,7 +91,8 @@ export const DocumentGeneratorComponent = () => ({
     
     // Generate from multiple meetings
     async generateFromMultiple() {
-        const selectedData = this.$store.baAssistant.getSelectedMeetingsData();
+        // For now, just use current results
+        const selectedData = this.$parent.results ? [this.$parent.results] : [];
         
         if (selectedData.length === 0) {
             alert('Please select meetings from history');
@@ -115,7 +116,7 @@ export const DocumentGeneratorComponent = () => ({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-passcode': this.$store.baAssistant.passcode
+                    'x-passcode': sessionStorage.getItem('ba_passcode')
                 },
                 body: JSON.stringify(docData)
             });
@@ -170,12 +171,12 @@ export const DocumentGeneratorComponent = () => ({
     
     // Get requirements count
     get requirementsCount() {
-        if (!this.$store.baAssistant.results?.requirements) return 0;
-        return this.$store.baAssistant.results.requirements.length;
+        if (!this.$parent.results?.requirements) return 0;
+        return this.$parent.results.requirements.length;
     },
     
     // Get selected meetings count  
     get selectedMeetingsCount() {
-        return this.$store.baAssistant.selectedMeetings.length;
+        return this.$parent.selectedMeetings?.length || 0;
     }
 });

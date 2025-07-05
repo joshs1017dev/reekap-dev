@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alpine.js Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl mb-4">Alpine.js Test</h1>
+    
+    <!-- Test 1: Basic Alpine -->
+    <div x-data="{ message: 'Alpine is working!' }" class="mb-4 p-4 border">
+        <h2 class="font-bold">Test 1: Basic Alpine</h2>
+        <p x-text="message"></p>
+    </div>
+    
+    <!-- Test 2: Simple component -->
+    <div x-data="simpleComponent()" class="mb-4 p-4 border">
+        <h2 class="font-bold">Test 2: Simple Component</h2>
+        <p x-text="status"></p>
+        <button @click="toggle()" class="px-4 py-2 bg-blue-500 text-white rounded">Toggle</button>
+    </div>
+    
+    <!-- Test 3: Main app structure -->
+    <div x-data="testApp()" x-init="init()" class="mb-4 p-4 border">
+        <h2 class="font-bold">Test 3: App Structure</h2>
+        <p>Authenticated: <span x-text="authenticated"></span></p>
+        <p>Has store: <span x-text="hasStore"></span></p>
+        <button @click="testAuth()" class="px-4 py-2 bg-green-500 text-white rounded">Test Auth</button>
+    </div>
+
+    <script>
+        // Define components before Alpine loads
+        window.simpleComponent = function() {
+            return {
+                status: 'Component loaded',
+                toggle() {
+                    this.status = this.status === 'Component loaded' ? 'Toggled!' : 'Component loaded';
+                }
+            }
+        }
+        
+        window.testApp = function() {
+            return {
+                authenticated: false,
+                hasStore: false,
+                
+                init() {
+                    console.log('testApp initialized');
+                    this.hasStore = typeof this.results !== 'undefined';
+                },
+                
+                testAuth() {
+                    this.authenticated = !this.authenticated;
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</body>
+</html>

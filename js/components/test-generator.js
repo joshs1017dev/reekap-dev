@@ -34,7 +34,7 @@ export const TestGeneratorComponent = () => ({
     // Initialize component
     init() {
         // Reset when switching tabs
-        this.$watch('$store.baAssistant.activeTab', (newTab) => {
+        this.$watch('$parent.activeTab', (newTab) => {
             if (newTab === 'tests') {
                 this.loadRequirements();
             }
@@ -43,10 +43,10 @@ export const TestGeneratorComponent = () => ({
     
     // Load requirements from current results
     loadRequirements() {
-        if (this.$store.baAssistant.results?.requirements) {
+        if (this.$parent.results?.requirements) {
             this.selectedRequirements = [];
             // Auto-select all requirements initially
-            this.$store.baAssistant.results.requirements.forEach((req, index) => {
+            this.$parent.results.requirements.forEach((req, index) => {
                 this.selectedRequirements.push(index);
             });
         }
@@ -80,7 +80,7 @@ export const TestGeneratorComponent = () => ({
         try {
             // Get selected requirements
             const requirements = this.selectedRequirements.map(index => 
-                this.$store.baAssistant.results.requirements[index]
+                this.$parent.results.requirements[index]
             );
             
             // Prepare request data
@@ -90,9 +90,9 @@ export const TestGeneratorComponent = () => ({
                 includeTestData: this.includeTestData,
                 format: this.testFormat,
                 meetingContext: {
-                    type: this.$store.baAssistant.meetingType,
-                    decisions: this.$store.baAssistant.results.decisions || [],
-                    assumptions: this.$store.baAssistant.results.assumptions || []
+                    type: this.$parent.meetingType,
+                    decisions: this.$parent.results.decisions || [],
+                    assumptions: this.$parent.results.assumptions || []
                 }
             };
             
@@ -101,7 +101,7 @@ export const TestGeneratorComponent = () => ({
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-passcode': this.$store.baAssistant.passcode
+                    'x-passcode': sessionStorage.getItem('ba_passcode')
                 },
                 body: JSON.stringify(requestData)
             });
@@ -218,9 +218,9 @@ export const TestGeneratorComponent = () => ({
     
     // Select all requirements
     selectAllRequirements() {
-        if (!this.$store.baAssistant.results?.requirements) return;
+        if (!this.$parent.results?.requirements) return;
         
-        this.selectedRequirements = this.$store.baAssistant.results.requirements.map((_, index) => index);
+        this.selectedRequirements = this.$parent.results.requirements.map((_, index) => index);
     },
     
     // Clear selection
