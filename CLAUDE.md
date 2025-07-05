@@ -3,7 +3,7 @@
 ## MODEL REQUIREMENT (EXTREMELY IMPORTANT)
 - **SUPPORTED MODELS**: 
   - Gemini 2.5 Flash Preview: `gemini-2.5-flash-preview-05-20` (Default)
-  - Gemini 2.5 Pro Preview: `gemini-2.5-pro-preview-06-05` (Enhanced analysis)
+  - Gemini 2.5 Pro Experimental: `gemini-2.5-pro-exp-03-25` (Enhanced analysis)
 - **API CONFIG**: No thinkingConfig needed - Flash uses Auto mode, Pro always thinks
 - **API STRUCTURE**: Uses nested system_instruction format
 
@@ -108,7 +108,6 @@ git commit -m "[type]: [description]"  # Commit format
 ```
 /
 ├── index.html                  # Main app (Vercel)
-├── index-github-pages.html     # GitHub Pages version (deprecated)
 ├── api/
 │   └── analyze.js             # Vercel serverless function
 ├── netlify-deprecated/         # Old Netlify deployment (no longer used)
@@ -149,11 +148,9 @@ git commit -m "[type]: [description]"  # Commit format
 2. **Fixing bugs:**
    - Reproduce in browser
    - Check browser console for errors
-   - Fix in all deployment versions
    - Test fix across different inputs
 
 ## Common Pitfalls to Avoid
-- Don't forget to update BOTH index.html files
 - Flash: Auto-adjusts thinking based on complexity; Pro: Always thinks
 - Keep prompts consistent across all backend files
 - Don't add complex features beyond BA needs

@@ -23,7 +23,16 @@
                     <p class="text-sm text-gray-600">Complete BA workflow automation suite</p>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-sm text-gray-500">v2.0 - Database Backed</span>
+                    <button @click="exportData()" class="text-sm text-gray-600 hover:text-gray-800">
+                        📥 Export Data
+                    </button>
+                    <button @click="showImportDialog = true" class="text-sm text-gray-600 hover:text-gray-800">
+                        📤 Import Data
+                    </button>
+                    <button @click="clearAllData()" class="text-sm text-red-600 hover:text-red-800">
+                        🗑️ Clear All
+                    </button>
+                    <span class="text-sm text-gray-500">v2.0</span>
                 </div>
             </div>
         </header>
@@ -49,6 +58,26 @@
             </div>
         </div>
 
+        <!-- Import Dialog -->
+        <div x-show="showImportDialog" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+                <h2 class="text-xl font-bold mb-4">Import Data</h2>
+                <input 
+                    type="file"
+                    @change="handleImportFile"
+                    accept=".json"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                >
+                <div class="mt-4 flex gap-2 justify-end">
+                    <button 
+                        @click="showImportDialog = false"
+                        class="px-4 py-2 text-gray-600 hover:text-gray-800"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <main x-show="authenticated" class="max-w-7xl mx-auto px-4 py-8">
@@ -192,9 +221,12 @@
                         
                         <!-- Action Buttons -->
                         <div class="flex gap-2">
-                            <span x-show="results.db_id" class="px-4 py-2 text-green-600 text-sm flex items-center">
-                                ✓ Saved to database
-                            </span>
+                            <button 
+                                @click="addMeetingToHistory(results)"
+                                class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                            >
+                                💾 Save to History
+                            </button>
                             <button 
                                 @click="copyAllToClipboard"
                                 class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
@@ -543,22 +575,11 @@
             </div>
 
             <!-- Meeting History Tab -->
-            <div x-show="mainTab === 'history'" x-data="MeetingHistoryComponent()" x-init="init()">
+            <div x-show="mainTab === 'history'" x-data="MeetingHistoryComponent()">
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-semibold">Meeting History</h2>
-                            <p x-show="dbError" class="text-sm text-yellow-600 mt-1" x-text="dbError"></p>
-                        </div>
+                        <h2 class="text-xl font-semibold">Meeting History</h2>
                         <div class="flex gap-2">
-                            <button 
-                                @click="refreshResults()"
-                                :disabled="loadingResults"
-                                class="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50"
-                                title="Refresh from database"
-                            >
-                                🔄 Refresh
-                            </button>
                             <input 
                                 type="text"
                                 x-model="searchQuery"
@@ -582,7 +603,7 @@
                             </select>
                             <button 
                                 @click="exportSelected()"
-                                :disabled="selectedMeetings.length === 0"
+                                :disabled="$store.baAssistant.selectedMeetings.length === 0"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
                             >
                                 Export Selected
@@ -590,17 +611,8 @@
                         </div>
                     </div>
 
-                    <!-- Loading State -->
-                    <div x-show="loadingResults" class="text-center py-8">
-                        <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p class="text-gray-600 mt-2">Loading results from database...</p>
-                    </div>
-
                     <!-- Meeting List -->
-                    <div x-show="!loadingResults" class="space-y-4">
+                    <div class="space-y-4">
                         <template x-for="meeting in filteredMeetings" :key="meeting.id">
                             <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
                                 <div class="flex justify-between items-start">
@@ -939,6 +951,7 @@
                 // UI state
                 mainTab: 'analyze',
                 activeTab: 'recap',
+                showImportDialog: false,
                 
                 // Initialize
                 init() {
@@ -948,6 +961,9 @@
                         this.passcode = savedPasscode;
                         this.authenticated = true;
                     }
+                    
+                    // Load persisted state
+                    this.loadState();
                     
                     // Initialize Mermaid
                     mermaid.initialize({ startOnLoad: true });
@@ -972,6 +988,13 @@
                     }
                 },
                 
+                async handleImportFile(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        await this.importData(file);
+                        this.showImportDialog = false;
+                    }
+                },
                 
                 async analyzeTranscript() {
                     if (!this.meetingType || !this.transcript) {
@@ -1004,11 +1027,10 @@
                         const data = await response.json();
                         this.results = data;
                         
-                        // Log database save status
-                        if (data.db_id) {
-                            console.log('Results saved to database with ID:', data.db_id);
-                        } else if (data.db_save_warning) {
-                            console.warn('Database save warning:', data.db_save_warning);
+                        // Auto-save to history if successful
+                        if (this.results) {
+                            const meetingId = this.addMeetingToHistory(this.results);
+                            console.log('Meeting saved with ID:', meetingId);
                         }
                         
                     } catch (err) {
